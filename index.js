@@ -47,10 +47,15 @@ app.get('/products/search', async (req, res) => {
             return res.status(400).json({ error: 'Parâmetro "name" é obrigatório' });
         }
 
-        const [result] = await db.query(
-            'SELECT * FROM products WHERE name LIKE ?',
-            [`%${name}%`]
-        );
+        //concatenando o nome diretamente no SQL - Vunerável
+        //url: http://localhost:8081/products/search?name=' OR '1'='1
+        const sql = `SELECT * FROM products WHERE name LIKE '%${name}%'`;
+        const [result] = await db.query(sql);
+
+        //corrigido
+        //url: http://localhost:8081/products/search?name=camiseta
+        //const [result] = await db.query('SELECT * FROM products WHERE name LIKE ?', [`%${name}%`]);
+
         res.json(result);
     } catch (err) {
         console.error(err);
