@@ -37,6 +37,27 @@ app.get('/products', async (req, res) => {
     }
 });
 
+//buscar produto pelo filtro nome
+app.get('/products/search', async (req, res) => {
+
+    try {
+        const { name } = req.query;
+        
+        if (!name) {
+            return res.status(400).json({ error: 'Parâmetro "name" é obrigatório' });
+        }
+
+        const [result] = await db.query(
+            'SELECT * FROM products WHERE name LIKE ?',
+            [`%${name}%`]
+        );
+        res.json(result);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Erro ao buscar produto' });
+    }
+});
+
 
 //Buscar produto por ID
 app.get('/products/:id', async (req, res) => {
